@@ -2,6 +2,7 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, Button, CircularProgress, Modal, Typography, useMediaQuery } from '@mui/material';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
+import isEqual from 'lodash.isequal';
 import useQuery from '../Hooks/useQuery';
 import useNotifications from '../Hooks/useNotification';
 import { Card as CardData } from '../Types/cardTypes';
@@ -15,6 +16,7 @@ import { ReactComponent as ZaniaLogo } from '../Assets/ZaniaLogo.svg';
 
 import '../Styles/cards.css';
 import { LazyImage } from './LazyImage';
+import usePrevious from '../Hooks/usePrevious';
 
 export const Cards: FC = () => {
 	const { addNotification } = useNotifications();
@@ -23,6 +25,7 @@ export const Cards: FC = () => {
 	const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 	const [cardImageModalVisible, setCardImageModalVisible] = useState<CardData | null>(null);
 
+
 	const getCardsData = useCallback(async () => {
 		try {
 			return fetchCards();
@@ -30,7 +33,7 @@ export const Cards: FC = () => {
 			addNotification({ message: (error as Error).message ?? 'Failed to get cards', type: 'error' });
 			throw error;
 		}
-	}, []);
+	}, [addNotification]);
 
 	const {
 		requestData: { data: cardsData, loading: cardsLoading, refreshing: cardsRefreshing, error: cardsError },
@@ -39,6 +42,8 @@ export const Cards: FC = () => {
 		queryFunction: getCardsData,
 		requestAtom: cardsAtom,
 	});
+
+	const previousCardsData = usePrevious<CardData[] | undefined>(cardsData);
 
 	const reorderCardsData = useCallback(async (positions: { old: number; new: number }[]) => {
 		setCardsRefreshing(true);
@@ -58,10 +63,13 @@ export const Cards: FC = () => {
 
 	useEffect(() => {
 		const interval = setInterval(() => {
+			if (isEqual(cardsData, previousCardsData)) {
+				return;
+			}
 			reorderCardsData((cardsData ?? []).map((card, index) => ({ old: card.position, new: index })));
 		}, CARD_SAVE_INTERVAL_MILLISECONDS);
 		return () => clearInterval(interval);
-	}, [cardsData, reorderCardsData]);
+	}, [cardsData, previousCardsData, reorderCardsData]);
 
 	const renderSaveButton = useCallback(() => {
 		return (

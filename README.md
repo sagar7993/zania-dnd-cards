@@ -1,46 +1,39 @@
-# Getting Started with Create React App
+# Zania DND Cards App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## [Click here to view demo online](https://zania-dnd-cards.netlify.app/)
 
-## Available Scripts
+## Libraries used
 
-In the project directory, you can run:
+React.js, Material-UI, React-DND, Jotai, and MSW
 
-### `npm start`
+## Main features of the app
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 1. State management
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+The app uses jotai (atom) to maintain application state. All API requests are executed MSW and cached in local storage for faster performance. I have created a custom hook to make API requests and handle it's error/loading states.
 
-### `npm test`
+On initial page load, cards will be fetched from server and rendered using CSS flex box.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 2. Responsive design implementation
 
-### `npm run build`
+The app is responsive and works perfectly on mobile and desktop. In desktop cards ara arranged as 3 + 2 layout, and in mobile the cards are rendered one below the other.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 3. Drag/Drop cards
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Users can reorder the cards by simply using drag and drop. Changes will be persisted even after page is reloaded. MSW and localStorage is used to achieve this.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. Image shows a circular loading spinner while it is loading
 
-### `npm run eject`
+Images will show a circular loading spinner animation. Once image is loaded from the network then the loading animation will stop. The onLoad and onError props of image tag are used to determine when the image has stopped loading from the network.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### 4. API implementation
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Using MSW library I have implemented and used 2 API's - fetch cards, and reorder cards. I have also implemented the API's for create/update/delete card and these can be used in the app in future if needed.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### 5. Image shown in overlay on click
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+If you click on any card it will show that card's image in a popup overlay. You can click cancel button or press escape on keyboard to close the overlay popup.
 
-## Learn More
+### 6. Auto save using timer
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+The current state of the cards will be auto-saved every 5 seconds. A loading spinner will be shown beside the save button, and the last saved timestamp is also shown beside the button. If there are no changes in the cards then save API will not be called for performance reasons.
